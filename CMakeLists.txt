@@ -1,24 +1,36 @@
 cmake_minimum_required(VERSION 3.8)
 project(barrier_builder)
 
+# ========================
+# Compiler settings
+# ========================
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+# ========================
 # Dependencies
+# ========================
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(barrier_msg REQUIRED)
 
-# Paths for non-ROS includes
-set(MOSEK_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/lib/mosek/11.0/tools/platform/linux64x86/h)
-set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include/barrier_builder)
+# ========================
+# Paths
+# ========================
+set(MOSEK_INCLUDE_DIR
+  ${PROJECT_SOURCE_DIR}/lib/mosek/11.0/tools/platform/linux64x86/h
+)
+set(MOSEK_LIB_DIR
+  ${PROJECT_SOURCE_DIR}/lib/mosek/11.0/tools/platform/linux64x86/bin
+)
+set(PROJECT_INCLUDE_DIR
+  ${PROJECT_SOURCE_DIR}/include/barrier_builder
+)
 
-
-
-
-# ==== Utils include ==============
-
+# ========================
+# barrier_utils library
+# ========================
 add_library(barrier_utils src/utils.cpp)
 
 target_include_directories(barrier_utils PUBLIC
@@ -28,8 +40,8 @@ target_include_directories(barrier_utils PUBLIC
 )
 
 target_link_directories(barrier_utils PRIVATE
-        ${PROJECT_SOURCE_DIR}/lib/mosek/11.0/tools/platform/linux64x86/bin
-    )
+  ${MOSEK_LIB_DIR}
+)
 
 ament_target_dependencies(barrier_utils
   rclcpp
@@ -43,8 +55,9 @@ target_link_libraries(barrier_utils
   fusion64
 )
 
-
-# === barrier_server executable ===
+# ========================
+# barrier_server executable
+# ========================
 add_executable(barrier_server src/create_barrier_service.cpp)
 
 target_include_directories(barrier_server PRIVATE
@@ -59,10 +72,9 @@ ament_target_dependencies(barrier_server
 )
 
 target_link_directories(barrier_server PRIVATE
-        ${PROJECT_SOURCE_DIR}/lib/mosek/11.0/tools/platform/linux64x86/bin
-    )
+  ${MOSEK_LIB_DIR}
+)
 
-# Link against non-ROS external libraries
 target_link_libraries(barrier_server
   barrier_utils
   mosek64
@@ -71,10 +83,9 @@ target_link_libraries(barrier_server
   fusion64
 )
 
-install(TARGETS barrier_server DESTINATION lib/${PROJECT_NAME})
-
-
-# === compute_barriers_client executable ===
+# ========================
+# compute_barriers_client executable
+# ========================
 add_executable(compute_barriers_client src/dummy_client.cpp)
 
 ament_target_dependencies(compute_barriers_client
@@ -82,10 +93,49 @@ ament_target_dependencies(compute_barriers_client
   barrier_msg
 )
 
-install(TARGETS compute_barriers_client DESTINATION lib/${PROJECT_NAME})
+target_link_directories(compute_barriers_client PRIVATE
+  ${MOSEK_LIB_DIR}
+)
 
+target_link_libraries(compute_barriers_client
+  mosek64
+  mosekxx11_0
+  tbb
+  fusion64
+)
 
-# === Optional: Linting and tests ===
+# ========================
+# Installation rules
+# ========================
+
+# Install targets
+install(TARGETS
+  barrier_utils
+  barrier_server
+  compute_barriers_client
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
+)
+
+# Install Mosek shared libraries into package lib folder
+install(
+  DIRECTORY ${MOSEK_LIB_DIR}/
+  DESTINATION lib/mosek/11.0/tools/platform/linux64x86/bin
+  FILES_MATCHING PATTERN "*.so*"
+)
+
+# Set RPATH so binaries can find Mosek inside installed package
+set_target_properties(barrier_server PROPERTIES
+  INSTALL_RPATH "$ORIGIN/../lib/mosek/11.0/tools/platform/linux64x86/bin"
+)
+set_target_properties(compute_barriers_client PROPERTIES
+  INSTALL_RPATH "$ORIGIN/../lib/mosek/11.0/tools/platform/linux64x86/bin"
+)
+
+# ========================
+# Optional: Linting and tests
+# ========================
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   set(ament_cmake_cpplint_FOUND TRUE)
@@ -93,4 +143,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+# ========================
+# Finalize package
+# ========================
 ament_package()
