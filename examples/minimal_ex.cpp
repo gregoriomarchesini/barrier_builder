@@ -22,14 +22,15 @@ int main() {
 
     // Create center vector using Eigen
     std::vector<double> center = {0.0, 0.0, 0.0};
+    std::vector<double> b(2*dim,side_length);
+   
 
     int agent_i = 0;
     int agent_j = 1;
-    
-    // These tasks will be constructed from ros messages
-    auto task  = Task<dim>(side_length, center, 0.0, 10.0 , TaskType::EVENTUALLY, agent_i, agent_j, num_agents);
-    auto task1 = Task<dim>(side_length, center, 20.0, 40.0, TaskType::EVENTUALLY, agent_i, agent_j, num_agents);
-    auto task2 = Task<dim>(side_length, center, 15.0, 17.0, TaskType::ALWAYS    , agent_i, agent_j, num_agents);
+   
+    auto task  = Task<dim>(b, center, 0.0, 10.0 , TaskType::EVENTUALLY, agent_i, agent_j, num_agents);
+    auto task1 = Task<dim>(b, center, 20.0, 40.0, TaskType::EVENTUALLY, agent_i, agent_j, num_agents);
+    auto task2 = Task<dim>(b, center, 15.0, 17.0, TaskType::ALWAYS    , agent_i, agent_j, num_agents);
 
 
     std::vector<Task<dim>> tasks;

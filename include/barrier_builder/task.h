@@ -39,7 +39,7 @@ class Task {
 public:
     
     // Methods
-    Task(  double                             side_length, 
+    Task(  const std::vector<double>&         side_length, 
            const std::vector<double>&         center, 
            const double                       start, 
            const double                       end, 

@@ -28,7 +28,7 @@ public:
     
 
     
-    Hypercube(double side_length, const std::vector<double>& center) 
+    Hypercube(const std::vector<double>& side_length, const std::vector<double>& center) 
     : size(side_length), center(center)
     {
         // Initialize A as a 4x2 sparse matrix with given entries
@@ -37,11 +37,19 @@ public:
 
         if constexpr (Dim == 2){
             // Initialize b as zero vector of size 4 (or you can set it differently)
-            b = new_array_ptr<double>({size / 2 + center[0], size / 2 - center[0], size / 2 + center[1], size / 2 - center[1]});
+            b = new_array_ptr<double>({size[0] / 2 + center[0], 
+                                       size[1] / 2 - center[0], 
+                                       size[2] / 2 + center[1], 
+                                       size[3] / 2 - center[1]});
         }
         else if constexpr (Dim == 3) {
             // Initialize b as zero vector of size 4 (or you can set it differently)
-            b = new_array_ptr<double>({ size / 2 + center[0] , size / 2 - center[0] , size / 2 + center[1] ,size / 2 - center[1],  size / 2 + center[2], size / 2 - center[2]});
+            b = new_array_ptr<double>({ size[0] / 2 + center[0] , 
+                                        size[1] / 2 - center[0] , 
+                                        size[2] / 2 + center[1] , 
+                                        size[3] / 2 - center[1],  
+                                        size[4] / 2 + center[2], 
+                                        size[5] / 2 - center[2]});
         }
 
         A = get_A_matrix();        
@@ -101,8 +109,8 @@ public:
     
     // Attributes
 
-    std::shared_ptr<ndarray<double>>      b;      // vector b of the hypercube defined as b = b' + A@C directly
-    double                               size;   // side length of the hypercube
+    std::shared_ptr<ndarray<double>>     b;      // vector b of the hypercube defined as b = b' + A@C directly
+    std::vector<double>                  size;   // side length of the hypercube
     std::vector<double>                  center; // center of the hypercube
     Matrix::t                            A;      // matrix A of the hypercube defined as A@(x-c)<= b
 };
