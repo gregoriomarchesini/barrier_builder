@@ -14,6 +14,8 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(barrier_msg REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(nav_msgs REQUIRED) 
 
 # ========================
 # Paths
@@ -46,6 +48,7 @@ target_link_directories(barrier_utils PRIVATE
 ament_target_dependencies(barrier_utils
   rclcpp
   barrier_msg
+  nav_msgs
 )
 
 target_link_libraries(barrier_utils
@@ -121,16 +124,8 @@ install(TARGETS
 # Install Mosek shared libraries into package lib folder
 install(
   DIRECTORY ${MOSEK_LIB_DIR}/
-  DESTINATION lib/mosek/11.0/tools/platform/linux64x86/bin
+  DESTINATION lib
   FILES_MATCHING PATTERN "*.so*"
-)
-
-# Set RPATH so binaries can find Mosek inside installed package
-set_target_properties(barrier_server PROPERTIES
-  INSTALL_RPATH "$ORIGIN/../lib/mosek/11.0/tools/platform/linux64x86/bin"
-)
-set_target_properties(compute_barriers_client PROPERTIES
-  INSTALL_RPATH "$ORIGIN/../lib/mosek/11.0/tools/platform/linux64x86/bin"
 )
 
 # ========================
