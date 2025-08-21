@@ -72,11 +72,12 @@ public:
 
         std::vector<Task<dim>> tasks;
         std::vector<TMsg> task_messages = request->messages;
+        std::vector<double> sides = {side_length, side_length};
 
         for (TMsg task_msg : task_messages)
         {
             Task<dim> task = Task<dim>(
-                side_length,
+                sides,
                 task_msg.center,
                 task_msg.start,
                 task_msg.end,
