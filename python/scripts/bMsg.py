@@ -30,9 +30,9 @@ class bMsg:
         self.edge_j    = edge_j                # Assigned to edge e_{ij} = x_i - x_j (j)
 
         if len(gamma0) == 4 :
-            self.slopes = slopes.reshape(4,-1)
+            self.slopes = self.slopes.reshape(4,-1)
         elif len(gamma0) == 6 :
-            self.slopes = slopes.reshape(6,-1)
+            self.slopes = self.slopes.reshape(6,-1)
 
         self.delta_t = np.diff(self.time_grid)  # Time differences for the time grid
 
